@@ -3,6 +3,7 @@
 import dom from 'metal-dom';
 import Dropdown from 'metal-dropdown';
 import Select from '../src/Select';
+import Soy from 'metal-soy';
 
 describe('Select', function() {
 	var select;
@@ -217,10 +218,12 @@ describe('Select', function() {
 			items: ['First', 'Second', 'Third']
 		});
 
-		assert.strictEqual(0, select.selectedIndex);
-		select.selectedIndex = 2;
-		select.items = ['New First', 'New Second', 'New Third'];
-		assert.strictEqual(0, select.selectedIndex);
+		select.once('stateChanged', () => {
+			assert.strictEqual(0, select.selectedIndex);
+			select.selectedIndex = 2;
+			select.items = ['New First', 'New Second', 'New Third'];
+			assert.strictEqual(0, select.selectedIndex);
+		});
 	});
 
 	describe('Keyboard', function() {
@@ -445,6 +448,22 @@ describe('Select', function() {
 				done();
 			});
 		});
+
+		it('should not change selected index attribute if items attribute was passed twice with the same value', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			});
+
+			select.selectedIndex = 1;
+			assert.strictEqual(1, select.selectedIndex);
+			select.items = ['First', 'Second', 'Third'];
+			assert.strictEqual(1, select.selectedIndex);
+			select.items = ['New First', 'New Second', 'New Third'];
+			select.once('stateSynced', function() {
+				assert.strictEqual(0, select.selectedIndex);
+				done();
+			});
+		});
 	});
 
 	describe('Soy', function() {
@@ -453,7 +472,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'],
+					internalItems: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
 					values: ['First', 'Second', 'Third'],
 					selectedIndex: 1
 				});
@@ -466,7 +485,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'],
+					internalItems: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
 					values: ['First', 'Second', 'Third']
 				});
 			});
@@ -478,7 +497,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'],
+					internalItems: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
 					values: ['First', 'Second', 'Third'],
 					label: 'Order'
 				});
