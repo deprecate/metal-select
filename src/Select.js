@@ -244,6 +244,17 @@ Select.STATE = {
 	},
 
 	/**
+	 * A list of keys representing each item. It is used by incremental DOM for
+	 * rendering performance.
+	 * @type {!Array<string|number>}
+	 * @default []
+	 */
+	keys: {
+		validator: val => val instanceof Array,
+		value: []
+	},
+
+	/**
 	 * The label that should be used for the select menu when no item is
 	 * selected. If not set, the first item will be selected automatically.
 	 * @type {string}
