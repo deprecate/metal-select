@@ -1,6 +1,6 @@
 'use strict';
 
-import core from 'metal';
+import { core, array } from 'metal';
 import dom from 'metal-dom';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
@@ -16,8 +16,15 @@ class Select extends Component {
 	/**
 	 * @inheritDoc
 	 */
+	created() {
+		this.internalItems = this.items;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	attached() {
-		this.on('itemsChanged', this.handleItemsChanged_);
+		this.on('internalItemsChanged', this.handleInternalItemsChanged_);
 	}
 
 	/**
@@ -61,7 +68,7 @@ class Select extends Component {
 	 * @return {!Dropdown}
 	 */
 	getSelectedIndexDefaultValue_() {
-		return this.label || !this.items.length ? -1 : 0;
+		return this.label || !this.internalItems.length ? -1 : 0;
 	}
 
 	/**
@@ -90,7 +97,7 @@ class Select extends Component {
 	 * @param {!Object} data
 	 * @protected
 	*/
-	handleItemsChanged_() {
+	handleInternalItemsChanged_() {
 		this.selectedIndex = this.getSelectedIndexDefaultValue_();
 	}
 
@@ -112,7 +119,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleItemKeyDown_(event) {
-		if ((event.keyCode === 13 || event.keyCode === 32)) {
+		if ( (event.keyCode === 13 || event.keyCode === 32) ) {
 			this.closedWithKeyboard_ = true;
 			this.selectItem_(event.delegateTarget);
 			event.preventDefault();
@@ -133,12 +140,12 @@ class Select extends Component {
 					break;
 				case 38:
 					this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
-					this.focusIndex_(this.focusedIndex_ === 0 ? this.items.length - 1 : this.focusedIndex_ - 1);
+					this.focusIndex_(this.focusedIndex_ === 0 ? this.internalItems.length - 1 : this.focusedIndex_ - 1);
 					event.preventDefault();
 					break;
 				case 40:
 					this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : -1;
-					this.focusIndex_(this.focusedIndex_ === this.items.length - 1 ? 0 : this.focusedIndex_ + 1);
+					this.focusIndex_(this.focusedIndex_ === this.internalItems.length - 1 ? 0 : this.focusedIndex_ + 1);
 					event.preventDefault();
 					break;
 			}
@@ -167,6 +174,19 @@ class Select extends Component {
 	 */
 	setItems_(items) {
 		return items.map((item) => Soy.toIncDom(item));
+	}
+
+	/**
+	 * Checks if the `items` really has changed and it synchronizes its
+	 * value with the `internalItems` attribute.
+	 * @param {!Array<string>} current
+	 * @param {!Array<string>} previous
+	 * @protected
+	 */
+	syncItems(current, previous) {
+		if (previous && !array.equal(current, previous)) {
+			this.internalItems = current;
+		}
 	}
 
 }
@@ -229,16 +249,26 @@ Select.STATE = {
 	},
 
 	/**
-	 * A list representing the select dropdown items.
+	 * A public list representing the select dropdown items. Its value is synced
+	 * with the `internaItems` attribute for internal manipulation.
 	 * @type {!Array<string>}
 	 * @default []
 	 */
 	items: {
+		validator: val => val instanceof Array,
+		value: []
+	},
+
+	/**
+	 * A internal attribute representing the select dropdown items.
+	 * @type {!Array<function()>}
+	 * @default []
+	 */
+	internalItems: {
+		internal: true,
 		setter: 'setItems_',
 		validator: val => val instanceof Array,
-		valueFn: function() {
-			return [];
-		}
+		value: []
 	},
 
 	/**
