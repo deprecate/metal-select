@@ -119,7 +119,8 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleItemKeyDown_(event) {
-		if ( (event.keyCode === 13 || event.keyCode === 32) ) {
+		const {keyCode} = event;
+		if (keyCode === 13 || keyCode === 32) {
 			this.closedWithKeyboard_ = true;
 			this.selectItem_(event.delegateTarget);
 			event.preventDefault();
@@ -132,8 +133,9 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleKeyDown_(event) {
+		const {keyCode} = event;
 		if (this.expanded_) {
-			switch (event.keyCode) {
+			switch (keyCode) {
 				case 27:
 					this.closedWithKeyboard_ = true;
 					this.expanded_ = false;
@@ -149,7 +151,7 @@ class Select extends Component {
 					event.preventDefault();
 					break;
 			}
-		} else if ((event.keyCode === 13 || event.keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
+		} else if ((keyCode === 13 || keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
 			this.openedWithKeyboard_ = true;
 			this.expanded_ = true;
 			event.preventDefault();
@@ -173,7 +175,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	setItems_(items) {
-		return items.map((item) => Soy.toIncDom(item));
+		return items.map(item => Soy.toIncDom(item));
 	}
 
 	/**
