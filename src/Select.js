@@ -185,8 +185,8 @@ class Select extends Component {
 	 * @param {!Array<string>} previous
 	 * @protected
 	 */
-	syncItems(current, previous) {
-		if (previous && !array.equal(current, previous)) {
+	syncItems(current, previous = current) {
+		if (!array.equal(current, previous)) {
 			this.internalItems = current;
 		}
 	}
