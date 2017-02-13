@@ -1,6 +1,6 @@
 'use strict';
 
-import core from 'metal';
+import { core, array } from 'metal';
 import dom from 'metal-dom';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
@@ -21,16 +21,16 @@ class Select extends Component {
 	}
 
 	/**
-	 * Finds the index of the given element in the items array.
+	 * Finds the index of the given element in the items collection.
 	 * @param {!Element} element
 	 * @return {number}
 	 * @protected
 	 */
 	findItemIndex_(element) {
-		var items = this.element.querySelectorAll('li');
-		for (var i = 0; i < items.length; i++) {
-			if (items.item(i) === element) {
-				return i;
+		const items = this.element.querySelectorAll('li');
+		for (const [index, item] of items.entries()) {
+			if (item === element) {
+				return index;
 			}
 		}
 	}
@@ -41,7 +41,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	focusIndex_(index) {
-		var option = this.element.querySelector('.select-option:nth-child(' + (index + 1) + ') a');
+		const option = this.element.querySelector(`.select-option:nth-child(${index + 1}) a`);
 		if (option) {
 			this.focusedIndex_ = index;
 			option.focus();
@@ -90,8 +90,10 @@ class Select extends Component {
 	 * @param {!Object} data
 	 * @protected
 	*/
-	handleItemsChanged_() {
-		this.selectedIndex = this.getSelectedIndexDefaultValue_();
+	handleItemsChanged_(event) {
+		if (event.prevVal && !array.equal(event.newVal, event.prevVal)) {
+			this.selectedIndex = this.getSelectedIndexDefaultValue_();
+		}
 	}
 
 	/**
@@ -112,7 +114,8 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleItemKeyDown_(event) {
-		if ((event.keyCode === 13 || event.keyCode === 32)) {
+		const {keyCode} = event;
+		if (keyCode === 13 || keyCode === 32) {
 			this.closedWithKeyboard_ = true;
 			this.selectItem_(event.delegateTarget);
 			event.preventDefault();
@@ -125,8 +128,9 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleKeyDown_(event) {
+		const {keyCode} = event;
 		if (this.expanded_) {
-			switch (event.keyCode) {
+			switch (keyCode) {
 				case 27:
 					this.closedWithKeyboard_ = true;
 					this.expanded_ = false;
@@ -142,12 +146,21 @@ class Select extends Component {
 					event.preventDefault();
 					break;
 			}
-		} else if ((event.keyCode === 13 || event.keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
+		} else if ((keyCode === 13 || keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
 			this.openedWithKeyboard_ = true;
 			this.expanded_ = true;
 			event.preventDefault();
 			return;
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	prepareStateForRender(data) {
+		return Object.assign({}, data, {
+			items: this.items.map(item => Soy.toIncDom(item))
+		});
 	}
 
 	/**
@@ -158,15 +171,6 @@ class Select extends Component {
 	selectItem_(itemElement) {
 		this.selectedIndex = this.findItemIndex_(itemElement);
 		this.expanded_ = false;
-	}
-
-	/**
-	 * Setter for items attribute.
-	 * @param {!Array<string>} items
-	 * @protected
-	 */
-	setItems_(items) {
-		return items.map((item) => Soy.toIncDom(item));
 	}
 
 }
@@ -229,16 +233,14 @@ Select.STATE = {
 	},
 
 	/**
-	 * A list representing the select dropdown items.
+	 * A public list representing the select dropdown items. Its value is synced
+	 * with the `internaItems` attribute for internal manipulation.
 	 * @type {!Array<string>}
 	 * @default []
 	 */
 	items: {
-		setter: 'setItems_',
 		validator: val => val instanceof Array,
-		valueFn: function() {
-			return [];
-		}
+		value: []
 	},
 
 	/**
