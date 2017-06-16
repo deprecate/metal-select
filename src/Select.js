@@ -178,7 +178,7 @@ class Select extends Component {
 	 * @param {boolean} disabled
 	 */
 	syncDisabled(disabled) {
-		if(disabled) {
+		if (disabled) {
 			this.expanded_ = false;
 			this.getDropdown().close();
 		}
@@ -189,8 +189,11 @@ class Select extends Component {
 	 * @param {boolean} expanded
 	 */
 	syncExpanded_(expanded) {
-		const dropdown = this.getDropdown();
-		expanded ? dropdown.open() : dropdown.close();
+		if (expanded) {
+			this.getDropdown().open();
+		} else {
+			this.getDropdown().close();
+		}
 	}
 }
 Soy.register(Select, templates);
