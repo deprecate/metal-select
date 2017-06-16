@@ -185,7 +185,7 @@ class Select extends Component {
 	}
 
 	/**
-	 * Syncs internal state expanded_ and toggle dropdown
+	 * Syncs internal state expanded_ and toggle dropdown.
 	 * @param {boolean} expanded
 	 */
 	syncExpanded_(expanded) {
