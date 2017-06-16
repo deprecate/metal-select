@@ -172,6 +172,26 @@ class Select extends Component {
 		this.expanded_ = false;
 	}
 
+	/**
+	 * Syncs disabled closing dropdown when select is changed to disabled
+	 * and updates internal state expanded_ to be false.
+	 * @param {boolean} disabled
+	 */
+	syncDisabled(disabled) {
+		if(disabled) {
+			this.expanded_ = false;
+			this.getDropdown().close();
+		}
+	}
+
+	/**
+	 * Syncs internal state expanded_ and toggle dropdown
+	 * @param {boolean} expanded
+	 */
+	syncExpanded_(expanded) {
+		const dropdown = this.getDropdown();
+		expanded ? dropdown.open() : dropdown.close();
+	}
 }
 Soy.register(Select, templates);
 
