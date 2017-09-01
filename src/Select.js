@@ -299,4 +299,5 @@ Select.STATE = {
  */
 Select.ELEMENT_CLASSES = 'select';
 
+export { Select };
 export default Select;
