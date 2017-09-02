@@ -225,6 +225,17 @@ describe('Select', function() {
 		});
 	});
 
+	it('should use the values of a given keys attribute', function() {
+		select = new Select({
+			items: ['First', 'Second', 'Third'],
+			keys: [1, 2, 3]
+		});
+
+		assert.strictEqual('1', select.element.querySelectorAll('.select-option')[0].getAttribute('key'));
+		assert.strictEqual('2', select.element.querySelectorAll('.select-option')[1].getAttribute('key'));
+		assert.strictEqual('3', select.element.querySelectorAll('.select-option')[2].getAttribute('key'));
+	});
+
 	describe('Keyboard', function() {
 		it('should close the dropdown and focus select button when ESC key is pressed', function(done) {
 			select = new Select({
